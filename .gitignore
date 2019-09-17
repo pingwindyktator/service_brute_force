@@ -1,0 +1,8 @@
+
+.idea/
+
+database/
+
+lib/__pycache__/
+
+lib/browsers/__pycache__/
