@@ -5,12 +5,24 @@
 from time import time
 from random import choice
 from requests import Session
-from .const import browser_data, response_codes, fetch_time, user_agents, debug
+from lib.const import response_codes, fetch_time, user_agents, debug
 
 
-class Browser(object):
-
+class InstagramBrowser:
     account_exists = None
+    browser_data = {
+        'header': {
+            'x-ig-app-id': '936619743392459',
+            'x-instagram-ajax': '2f6bf8b37c04',
+            'x-requested-with': 'XMLHttpRequest',
+            'referer': 'https://www.instagram.com/',
+            'content-type': 'application/x-www-form-urlencoded'
+        },
+        'home_url': 'https://www.instagram.com/',
+        'login_url': 'https://www.instagram.com/accounts/login/ajax/',
+        'username_field': 'username',
+        'password_field': 'password'
+    }
 
     def __init__(self, username, password, proxy):
         self.proxy = proxy
@@ -24,19 +36,18 @@ class Browser(object):
         self.is_attempted = False
 
     def br(self):
-        header = browser_data['header']
+        header = InstagramBrowser.browser_data['header']
         header['user-agent'] = choice(user_agents)
 
         session = Session()
         session.headers.update(header)
-        session.proxies.update(self.proxy.addr)
+        session.proxies.update(self.proxy.addr if self.proxy else [])
         return session
 
     def get_token(self):
         token = None
         try:
-            token = self.browser.get(
-                browser_data['home_url'], timeout=fetch_time).cookies.get_dict()['csrftoken']
+            token = self.browser.get(InstagramBrowser.browser_data['home_url'], timeout=fetch_time).cookies.get_dict()['csrftoken']
 
             self.browser.headers.update({
                 'cookie': 'mid=XLzTtAALAAEb-Sz-JUGbyLphzGmc; csrftoken={}; rur={}'.format(
@@ -50,12 +61,11 @@ class Browser(object):
 
     def post_data(self):
         response = None
-        data = {browser_data['username_field']: self.username,
-                browser_data['password_field']: self.password}
+        data = {InstagramBrowser.browser_data['username_field']: self.username,
+                InstagramBrowser.browser_data['password_field']: self.password}
 
         try:
-            response = self.browser.post(
-                browser_data['login_url'], data=data, timeout=fetch_time).json()
+            response = self.browser.post(InstagramBrowser.browser_data['login_url'], data=data, timeout=fetch_time).json()
         except:
             pass
         finally:
@@ -63,7 +73,7 @@ class Browser(object):
 
     def check_exists(self, response):
         if 'user' in response:
-            Browser.account_exists = response['user']
+            InstagramBrowser.account_exists = response['user']
 
     def check_response(self, response):
         if 'authenticated' in response:
@@ -99,7 +109,7 @@ class Browser(object):
             if resp_code == response_codes['succeed']:
                 resp['accessed'] = True
 
-            if Browser.account_exists == None:
+            if InstagramBrowser.account_exists == None:
                 self.check_exists(response)
 
         return resp

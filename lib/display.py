@@ -10,8 +10,7 @@ from builtins import input
 from platform import system as platform
 
 
-class Display(object):
-
+class Display:
     __is_color = None
     total_lines = None
     account_exists = None
@@ -38,7 +37,7 @@ class Display(object):
     def stats(self, password, attempts, browsers, load=True):
         self.clear()
         complete = round((attempts/Display.total_lines) * 100, 4)
-        account_exists = self.account_exists if self.account_exists != None else ''
+        account_exists = self.account_exists if self.account_exists is not None else ''
 
         if self.__is_color:
             print('{0}[{1}-{0}] {1}Wordlist: {2}{3}{4}'.format(

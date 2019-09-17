@@ -31,28 +31,6 @@ user_agents = [
     'Mozilla/5.0 (iPhone; CPU iPhone OS 7_0 like Mac OS X) AppleWebKit/537.51.1 (KHTML, like Gecko) Version/7.0 Mobile/11A465 Safari/9537.53 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)',
 ]
 
-# Browser
-header = {
-    'x-ig-app-id': '936619743392459',
-    'x-instagram-ajax': '2f6bf8b37c04',
-    'x-requested-with': 'XMLHttpRequest',
-    'referer': 'https://www.instagram.com/',
-    'content-type': 'application/x-www-form-urlencoded'
-}
-
-username_field = 'username'
-password_field = 'password'
-home_url = 'https://www.instagram.com/'
-login_url = 'https://www.instagram.com/accounts/login/ajax/'
-
-browser_data = {
-    'header': header,
-    'home_url': home_url,
-    'login_url': login_url,
-    'username_field': username_field,
-    'password_field': password_field
-}
-
 # Login
 fetch_time = (10, 15)
 response_codes = {'succeed': 0, 'failed': 1, 'locked': -1}

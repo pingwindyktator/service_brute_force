@@ -4,26 +4,27 @@
 
 import json
 import sqlite3
-from os import remove
-from sys import version_info
 from lib.const import db_path
-from os.path import exists as path
-from csv import DictWriter, DictReader
 
 
 class DatabaseWrapper:
-
     def __init__(self, db_name):
         self.db_name = db_name
 
-    def db_query(self, cmd, args=[], fetchone=True):
+    def db_query(self, cmd, args=None, fetchone=True):
+        if args is None:
+            args = []
+
         database = sqlite3.connect(self.db_name)
         sql = database.cursor().execute(cmd, args)
         data = sql.fetchone()[0] if fetchone else sql.fetchall()
         database.close()
         return data
 
-    def db_execute(self, cmd, args=[]):
+    def db_execute(self, cmd, args=None):
+        if args is None:
+            args = []
+
         database = sqlite3.connect(self.db_name)
         database.cursor().execute(cmd, args)
         database.commit()
@@ -31,7 +32,6 @@ class DatabaseWrapper:
 
 
 class Session(DatabaseWrapper):
-
     is_busy = False
 
     def __init__(self, fingerprint):

@@ -13,8 +13,7 @@ from threading import Thread, RLock
 from .const import fetch_time, debug
 
 
-class Scraper(object):
-
+class Scraper:
     def __init__(self):
         self.lock = RLock()
         self.is_alive = True
@@ -51,16 +50,14 @@ class Scraper(object):
         proxies = []
 
         try:
-            proxies = bs(get(link, timeout=fetch_time).text,
-                         'html.parser').find('tbody').find_all('tr')
+            proxies = bs(get(link, timeout=fetch_time).text, 'html.parser').find('tbody').find_all('tr')
         except:
             pass
 
         if not proxies:
             with self.lock:
                 if self.is_alive and debug:
-                    self.display.warning(
-                        'Failed to grab proxies from {}'.format(link))
+                    self.display.warning('Failed to grab proxies from {}'.format(link))
 
         for proxy in proxies:
             with self.lock:
@@ -73,8 +70,7 @@ class Scraper(object):
 
         try:
             if self.is_alive:
-                proxies = get(self.extra_proxies_link,
-                              timeout=fetch_time).text.split('\n')
+                proxies = get(self.extra_proxies_link, timeout=fetch_time).text.split('\n')
         except:
             pass
 
@@ -93,9 +89,7 @@ class Scraper(object):
     def proxies(self):
         proxy_list = ProxyList()
 
-        threads = []
-        threads = [Thread(target=self.scrape_proxies, args=[link])
-                   for link in self.links]
+        threads = [Thread(target=self.scrape_proxies, args=[link]) for link in self.links]
         threads.append(Thread(target=self.scrape_extra_proxies))
 
         index = 0
@@ -112,12 +106,12 @@ class Scraper(object):
         while self.is_alive and len(threads):
             for thread in [thread for thread in threads if not thread.is_alive()]:
                 threads.pop(threads.index(thread))
+
             sleep(0.5)
 
         if self.is_alive:
             for proxy in self.scraped_proxies:
-
-                if not proxy in proxy_list:
+                if proxy not in proxy_list:
                     proxy_list.append(Proxy(proxy))
 
-        return [proxy_list.list.pop(randint(0, len(proxy_list.list)-1)) for _ in range(len(proxy_list.list))]
+        return [proxy_list.list.pop(randint(0, len(proxy_list.list) - 1)) for _ in range(len(proxy_list.list))]
