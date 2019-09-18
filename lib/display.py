@@ -1,11 +1,8 @@
-# 12/29/2018
-# Author: Mohamed
-# Description: Display
-
 from os import system
 from time import sleep
-from .const import debug
+from lib.const import debug
 from colorama import Fore
+from time import time
 from builtins import input
 from platform import system as platform
 
@@ -20,14 +17,14 @@ class Display:
         self.username = username
         self.passlist = passlist
         self.colors_disabled = True
-        self.cls = 'cls' if platform() == 'Windows' else 'clear'
+        self.start_time = time()
 
-        if Display.__is_color == None:
+        if Display.__is_color is None:
             Display.__is_color = is_color
 
     def clear(self):
         if not debug or self.colors_disabled:
-            system(self.cls)
+            system('cls' if platform() == 'Windows' else 'clear')
 
             if self.colors_disabled and self.__is_color:
                 self.colors_disabled = False
@@ -36,18 +33,11 @@ class Display:
 
     def stats(self, password, attempts, browsers, load=True):
         self.clear()
-        complete = round((attempts/Display.total_lines) * 100, 4)
+        complete = round((attempts / Display.total_lines) * 100, 4)
+        speed = round(attempts / (time() - self.start_time), 4)
         account_exists = self.account_exists if self.account_exists is not None else ''
 
         if self.__is_color:
-            print('{0}[{1}-{0}] {1}Wordlist: {2}{3}{4}'.format(
-                Fore.YELLOW, Fore.WHITE, Fore.CYAN, self.passlist, Fore.RESET
-            ))
-
-            print('{0}[{1}-{0}] {1}Username: {2}{3}{4}'.format(
-                Fore.YELLOW, Fore.WHITE, Fore.CYAN, self.username.title(), Fore.RESET
-            ))
-
             print('{0}[{1}-{0}] {1}Password: {2}{3}{4}'.format(
                 Fore.YELLOW, Fore.WHITE, Fore.CYAN, password, Fore.RESET
             ))
@@ -58,6 +48,10 @@ class Display:
 
             print('{0}[{1}-{0}] {1}Attempts: {2}{3}{4}'.format(
                 Fore.YELLOW, Fore.WHITE, Fore.CYAN, attempts, Fore.RESET
+            ))
+
+            print('{0}[{1}-{0}] {1}Speed: {2}{3} (attempts / sec) {4}'.format(
+                Fore.YELLOW, Fore.WHITE, Fore.CYAN, speed, Fore.RESET
             ))
 
             print('{0}[{1}-{0}] {1}Browsers: {2}{3}{4}'.format(

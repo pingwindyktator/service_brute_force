@@ -2,7 +2,7 @@
 # Author: Mohamed
 # Description: Manages bad proxies
 
-from .const import max_bad_proxies
+from lib.const import max_bad_proxies
 
 
 class BadProxies(object):

@@ -109,7 +109,7 @@ class InstagramBrowser:
             if resp_code == response_codes['succeed']:
                 resp['accessed'] = True
 
-            if InstagramBrowser.account_exists == None:
+            if InstagramBrowser.account_exists is None:
                 self.check_exists(response)
 
         return resp

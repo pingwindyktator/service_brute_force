@@ -51,7 +51,7 @@ class FacebookBrowser(object):
             if resp_code == response_codes['succeed']:
                 resp['accessed'] = True
 
-            if FacebookBrowser.account_exists == None:
+            if FacebookBrowser.account_exists is None:
                 self.check_exists(response)
 
         return resp

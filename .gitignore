@@ -6,3 +6,5 @@ database/
 lib/__pycache__/
 
 lib/browsers/__pycache__/
+
+__pycache__/

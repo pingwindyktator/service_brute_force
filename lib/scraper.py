@@ -10,7 +10,7 @@ from .display import Display
 from .proxy_list import ProxyList
 from bs4 import BeautifulSoup as bs
 from threading import Thread, RLock
-from .const import fetch_time, debug
+from lib.const import fetch_time, debug
 
 
 class Scraper:
